@@ -14,6 +14,8 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@pinia/nuxt',
     '@nuxt/icon',
+    '@nuxt/image',
+    '@vee-validate/nuxt',
   ],
   compatibilityDate: '2024-10-13',
   supabase: {

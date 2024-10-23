@@ -1,8 +1,10 @@
 <script setup lang="ts"></script>
 <template>
-  <div class="container">
+  <div class="min-h-screen transition-colors duration-300 flex">
     <TheNavigation class="mb-4" />
-    <slot />
+    <div class="container mx-auto p-8">
+      <slot />
+    </div>
   </div>
 </template>
 <style>
