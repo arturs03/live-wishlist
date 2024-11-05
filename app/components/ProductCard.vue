@@ -1,47 +1,74 @@
-<script setup>
-import { defineProps } from 'vue'
+<script setup lang="ts">
+import { Line } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+import { getChartConfigData, chartOptions } from '@/utils/chartConfig'
+import type { IProductPriceData } from '@/types/chart'
 
-defineProps({
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
+
+interface IProps {
   product: {
-    type: Object,
-    required: true,
-  },
-  isRowView: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-const generateChartPoints = (priceHistory) => {
-  const max = Math.max(...priceHistory)
-  const min = Math.min(...priceHistory)
-  const range = max - min
-
-  return priceHistory
-    .map((price, index) => {
-      const x = (index / (priceHistory.length - 1)) * 100
-      const y = 100 - ((price - min) / range) * 100
-      return `${x},${y}`
-    })
-    .join(' ')
+    history: {
+      price: number
+      crawlDate: string
+    }[]
+    img: string
+    title: string
+    price: number
+    link: string
+    crawlDate: string
+  }
+  isRowView: boolean
 }
+
+const props = defineProps<IProps>()
+
+const dayjs = useDayjs()
+const priceData = computed(() => {
+  let data: IProductPriceData = {
+    prices: [],
+    dates: [],
+  }
+
+  props.product.history?.forEach((history) => {
+    data.dates.push(dayjs(history.crawlDate).format('DD/MM'))
+    data.prices.push(history.price)
+  })
+
+  return data
+})
+const chartData = ref(getChartConfigData(priceData.value))
 </script>
 <template>
   <div
-    :class="[
-      'bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors duration-300',
-      { 'border-2 border-green-500': product.hasPriceDropped },
-      isRowView ? 'flex items-center p-4 space-x-4' : 'p-6',
-    ]"
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-lg transition-colors duration-300"
+    :class="[isRowView ? 'flex items-center p-4 space-x-4' : 'p-6']"
   >
-    <img
-      :src="product.image"
+    <NuxtImg
+      src="/img/macbook.png"
       :alt="product.title"
       :class="[
         'object-cover rounded',
         isRowView ? 'w-16 h-16 flex-shrink-0' : 'w-full h-48 mb-4',
       ]"
-    >
+    />
     <div
       :class="[
         isRowView
@@ -49,31 +76,19 @@ const generateChartPoints = (priceHistory) => {
           : 'space-y-4',
       ]"
     >
-      <div :class="[isRowView ? 'w-full sm:w-1/4 mb-2 sm:mb-0' : '']">
-        <h3
-          :class="[
-            'font-semibold text-gray-800 dark:text-white',
-            isRowView ? 'text-lg' : 'text-xl mb-2',
-          ]"
-        >
-          {{ product.title }}
-        </h3>
-        <p
-          :class="[
-            'font-bold text-gray-800 dark:text-white',
-            isRowView ? 'text-lg sm:hidden' : 'text-lg mb-4',
-          ]"
-        >
-          ${{ product.currentPrice.toFixed(2) }}
-        </p>
-      </div>
+      <p
+        class="font-semibold text-gray-800 dark:text-white mb-2"
+        :class="isRowView ? '' : 'h-24 '"
+      >
+        {{ product.title }}
+      </p>
       <p
         :class="[
-          'font-bold text-gray-800 dark:text-white',
-          isRowView ? 'text-lg hidden sm:block w-1/6' : 'text-lg mb-4',
+          'font-bold text-gray-800 dark:text-white text-2xl',
+          isRowView ? 'hidden sm:block w-1/6' : 'mb-4',
         ]"
       >
-        ${{ product.currentPrice.toFixed(2) }}
+        ${{ product.price?.toFixed(2) }}
       </p>
       <div :class="[isRowView ? 'flex-grow max-w-xs' : 'mb-4']">
         <h4 class="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300">
@@ -82,34 +97,18 @@ const generateChartPoints = (priceHistory) => {
         <div
           :class="[
             'bg-gray-100 dark:bg-gray-700 rounded',
-            isRowView ? 'h-12' : 'h-24',
+            isRowView ? 'h-24' : 'h-48',
           ]"
         >
-          <svg
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            class="w-full h-full"
-          >
-            <polyline
-              :points="generateChartPoints(product.priceHistory)"
-              fill="none"
-              stroke="#4CAF50"
-              stroke-width="2"
-            />
-          </svg>
+          <Line :data="chartData" :options="chartOptions" />
         </div>
       </div>
       <p
         :class="[
           'text-sm font-semibold',
-          product.hasPriceDropped
-            ? 'text-green-500'
-            : 'text-gray-600 dark:text-gray-300',
           isRowView ? 'w-full sm:w-1/6 text-right' : '',
         ]"
-      >
-        {{ product.hasPriceDropped ? 'Price dropped!' : 'Price unchanged' }}
-      </p>
+      ></p>
     </div>
   </div>
 </template>

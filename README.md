@@ -32,3 +32,6 @@ Locally preview production build:
 pnpm run preview
 
 ```
+
+### Read nuxt 4 stucture 
+https://github.com/nuxt/nuxt/issues/26444

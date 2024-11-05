@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   },
   devtools: { enabled: true },
   modules: [
+    'dayjs-nuxt',
     '@vueuse/nuxt',
     '@nuxt/eslint',
     '@nuxtjs/tailwindcss',
@@ -15,7 +16,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/icon',
     '@nuxt/image',
-    '@vee-validate/nuxt',
+    '@vee-validate/nuxt'
   ],
   compatibilityDate: '2024-10-13',
   supabase: {
@@ -24,12 +25,6 @@ export default defineNuxtConfig({
     redirect: false,
   },
   colorMode: {
-    preference: 'dark',
     fallback: 'dark',
-  },
-  nitro: {
-    experimental: {
-      websocket: true,
-    },
-  },
+  }
 })

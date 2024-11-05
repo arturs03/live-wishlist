@@ -1,35 +1,47 @@
-<script setup>
+<script setup lang="ts">
+import { groupArray } from '@/utils/arrays'
+import { breakpointsTailwind } from '@vueuse/core'
+import type { ICrawledData } from '@@/shared/types'
+
 const isCardView = ref(true)
+
+const { data, refresh } = await useFetch('/api/product-data')
+const products: Ref<ICrawledData[]> = ref(
+  JSON.parse(JSON.stringify(data.value))
+)
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isTablet = breakpoints.isInBetween('md', 'xl')
+
+const itemsSplitInGrid = ref()
+function setProductItems() {
+  itemsSplitInGrid.value = isCardView.value
+    ? groupArray<ICrawledData>(products.value, isTablet ? 2 : 3)
+    : products.value
+}
+
+setProductItems()
 
 const toggleView = () => {
   isCardView.value = !isCardView.value
+  setProductItems()
 }
 
-// Dummy product data
-const products = ref([
+async function crawlData() {
+  $fetch('/api/save-product-data')
+  refresh()
+}
+
+const { list, containerProps, wrapperProps } = useVirtualList(
+  itemsSplitInGrid,
   {
-    id: 1,
-    title: 'Smartphone X',
-    image: '/img/iphone.png',
-    currentPrice: 499.99,
-    priceHistory: [520, 510, 505, 500, 499.99, 499.99, 499.99],
-    hasPriceDropped: true,
-  },
-  {
-    id: 2,
-    title: 'Laptop Pro',
-    image: '/img/macbook.png',
-    currentPrice: 1299.99,
-    priceHistory: [
-      1299.99, 1299.99, 1299.99, 1299.99, 1299.99, 1299.99, 1299.99,
-    ],
-    hasPriceDropped: false,
-  },
-])
+    itemHeight: isCardView.value ? 664 : 266,
+    overscan: 6,
+  }
+)
 </script>
 <template>
   <div class="flex flex-col md:flex-row min-h-screen w-full">
-    <!-- Main Content -->
     <main class="flex-1">
       <div class="flex flex-col md:flex-row justify-between items-center mb-8">
         <h1
@@ -50,22 +62,33 @@ const products = ref([
             />
             {{ isCardView ? 'Switch to Row View' : 'Switch to Card View' }}
           </button>
+
+          <button
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300 flex items-center"
+            @click="crawlData"
+          >
+            Crawl
+          </button>
         </div>
       </div>
       <div class="overflow-x-auto">
-        <div
-          :class="[
-            isCardView
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-              : 'space-y-6',
-          ]"
-        >
-          <ProductCard
-            v-for="product in products"
-            :key="product.id"
-            :product="product"
-            :is-row-view="!isCardView"
-          />
+        <div v-bind="containerProps" style="height: 1000px">
+          <div v-bind="wrapperProps">
+            <div
+              v-for="row in list"
+              class="grid gap-4"
+              :class="isCardView ? 'grid-cols-3' : ''"
+            >
+              <ProductCard
+                v-for="product in row.data"
+                :key="product.link"
+                :product="product"
+                :is-row-view="!isCardView"
+                class="mb-4"
+                :style="`height: ${isCardView ? '648px' : '250px'}`"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </main>

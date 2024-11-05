@@ -5,7 +5,7 @@ const COLOR_MODE_LIGHT = 'light'
 const COLOR_MODE_DARK = 'dark'
 
 function toggleColorMode() {
-  colorMode.value =
+  colorMode.preference =
     colorMode.value === COLOR_MODE_DARK ? COLOR_MODE_LIGHT : COLOR_MODE_DARK
 }
 
@@ -33,9 +33,9 @@ const toggleMobileNav = () => {
 }
 </script>
 <template>
-  <div>
+  <div class="w-full md:w-48">
     <aside
-      class="hidden md:block h-full bg-gray-100 dark:bg-gray-800 transition-colors duration-300 "
+      class="hidden md:block h-screen fixed bg-gray-100 dark:bg-gray-800 transition-colors duration-300"
     >
       <nav class="p-6 top-0">
         <h2 class="text-xl font-bold mb-6 text-gray-800 dark:text-white">
@@ -48,7 +48,7 @@ const toggleMobileNav = () => {
               class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
             >
               <Icon :name="menuItem.icon" class="text-xl" />
-              <p class="mb-0 text-xl">{{ menuItem.label }}</p>
+              <p class="mb-0 text-xl text-nowrap">{{ menuItem.label }}</p>
             </NuxtLink>
           </div>
           <div
@@ -80,14 +80,14 @@ const toggleMobileNav = () => {
         <Icon v-else name="ic:baseline-close" class="h-6 w-6" />
       </button>
       <nav v-if="isMobileNavOpen" class="mt-4">
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-6">
           <div v-for="menuItem in MENU_ITEMS" :key="menuItem.icon">
             <NuxtLink
               :to="menuItem.path"
               class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
             >
-              <Icon :name="menuItem.icon" class="text-xl" />
-              <p class="mb-0 text-xl">{{ menuItem.label }}</p>
+              <Icon :name="menuItem.icon" class="text-2xl" />
+              <p class="mb-0 text-2xl">{{ menuItem.label }}</p>
             </NuxtLink>
           </div>
           <div
@@ -100,9 +100,9 @@ const toggleMobileNav = () => {
                   ? 'material-symbols:nightlight-outline'
                   : 'material-symbols:sunny-outline-rounded'
               "
-              class="text-xl"
+              class="text-2xl"
             />
-            <p class="mb-0 text-xl">
+            <p class="mb-0 text-2xl">
               {{
                 $colorMode.value === COLOR_MODE_DARK
                   ? 'Dark Mode'
