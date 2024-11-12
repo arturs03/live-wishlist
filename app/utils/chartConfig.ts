@@ -1,4 +1,4 @@
-import type { IProductPriceData } from "@/types/chart"
+import type { IProductPriceData } from '@/types/chart'
 
 export const getChartConfigData = (historyData: IProductPriceData) => ({
   labels: historyData.dates,
@@ -22,15 +22,12 @@ export const chartOptions = {
         display: false,
       },
       ticks: {
-        display: true,
+        display: false,
       },
     },
     y: {
       grid: {
         display: false,
-      },
-      ticks: {
-        display: true,
       },
     },
   },

@@ -54,6 +54,7 @@ const priceData = computed(() => {
 
   return data
 })
+
 const chartData = ref(getChartConfigData(priceData.value))
 </script>
 <template>
@@ -61,43 +62,60 @@ const chartData = ref(getChartConfigData(priceData.value))
     class="bg-white dark:bg-gray-800 rounded-lg shadow-lg transition-colors duration-300"
     :class="isRowView ? 'flex items-center p-4 space-x-4' : 'p-6'"
   >
-    <NuxtImg
-      src="/img/macbook.png"
-      :alt="product.title"
-      class="object-cover rounded"
-      :class="isRowView ? 'w-16 h-16 flex-shrink-0' : 'w-full h-48 mb-4'"
-    />
+    <!-- Row View -->
     <div
-      :class="
-        isRowView
-          ? 'flex flex-grow items-center space-x-4 flex-wrap'
-          : 'space-y-4'
-      "
+      v-if="isRowView"
+      class="grid grid-cols-12 items-center justify-start gap-2"
     >
-      <p
-        class="font-semibold text-gray-800 dark:text-white mb-2"
-        :class="isRowView ? 'w-[60%]' : 'h-24 '"
-      >
+      <NuxtImg
+        src="/img/macbook.png"
+        :alt="product.title"
+        class="object-cover rounded col-span-1"
+      />
+
+      <p class="font-semibold text-gray-800 dark:text-white col-span-6">
         {{ product.title }}
       </p>
 
-      <div :class="isRowView ? 'flex-grow max-w-xs' : 'mb-4'">
+      <div class="col-span-3">
         <h4 class="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300">
           Price History (Last 7 Days)
         </h4>
-        <div
-          class="bg-gray-100 dark:bg-gray-700 rounded"
-          :class="isRowView ? 'h-24' : 'h-48'"
-        >
+        <div class="rounded h-24">
           <Line :data="chartData" :options="chartOptions" />
         </div>
       </div>
       <p
-        class="font-bold text-gray-800 dark:text-white text-2xl"
-        :class="isRowView ? 'hidden sm:block' : 'mb-4'"
+        class="font-bold text-gray-800 dark:text-white text-2xl hidden sm:block col-span-2 ml-auto"
       >
         ${{ product.price?.toFixed(2) }}
       </p>
     </div>
+    <!-- Column View -->
+    <template v-else>
+      <NuxtImg
+        src="/img/macbook.png"
+        :alt="product.title"
+        class="object-cover rounded w-full h-48 mb-4"
+      />
+      <div class="space-y-4">
+        <p class="font-semibold text-gray-800 dark:text-white h-24">
+          {{ product.title }}
+        </p>
+        <div class="mb-4">
+          <h4
+            class="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300"
+          >
+            Price History (Last 7 Days)
+          </h4>
+          <div class="rounded h-48">
+            <Line :data="chartData" :options="chartOptions" />
+          </div>
+        </div>
+        <p class="font-bold text-gray-800 dark:text-white text-2xl mb-4">
+          ${{ product.price?.toFixed(2) }}
+        </p>
+      </div>
+    </template>
   </div>
 </template>

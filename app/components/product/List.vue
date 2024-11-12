@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ICrawledData } from '~~/shared/types'
+import type { ICrawledData } from '@@/shared/types'
 import { groupArray } from '@/utils/arrays'
 import { breakpointsTailwind } from '@vueuse/core'
 
