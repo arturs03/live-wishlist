@@ -39,8 +39,7 @@ const { list, wrapperProps, containerProps } = useVirtualList(productItems, {
           <div
             v-for="row in list"
             :key="row.index"
-            class="grid gap-4"
-            :class="isRowView ? 'grid-cols-1 mb-4' : 'grid-cols-3'"
+            class="grid gap-4 grid-cols-3"
           >
             <ProductCard
               v-for="product in row.data"

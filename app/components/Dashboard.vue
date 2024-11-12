@@ -49,7 +49,7 @@ async function crawlData() {
         </div>
       </div>
       <ProductList
-        :key="isRowView"
+        :key="`view-${isRowView}`"
         :products="products"
         :is-row-view="isRowView"
       />
