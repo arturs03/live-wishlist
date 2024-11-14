@@ -1,5 +1,5 @@
 import reduce from 'lodash/reduce'
-import { ICrawledData } from '@@/shared/types'
+import type { ICrawledData } from '@@/shared/types'
 
 export default function (arr1: ICrawledData[], arr2: ICrawledData[]) {
   const combined = [...arr1, ...arr2]

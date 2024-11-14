@@ -1,5 +1,5 @@
 import { existsSync, writeFileSync, readFileSync, statSync } from 'fs'
-import { ICrawledData } from '@@/shared/types'
+import type { ICrawledData } from '@@/shared/types'
 import mergeArrays from './mergeArrays'
 
 export function saveFile(path: string, newData: ICrawledData[]) {

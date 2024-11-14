@@ -11,11 +11,6 @@ const products: Ref<ICrawledData[]> = ref(
 const toggleView = () => {
   isRowView.value = !isRowView.value
 }
-
-async function crawlData() {
-  $fetch('/api/save-product-data')
-  refresh()
-}
 </script>
 <template>
   <div class="flex flex-col md:flex-row min-h-screen w-full">
@@ -42,17 +37,26 @@ async function crawlData() {
 
           <button
             class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300 flex items-center"
-            @click="crawlData"
+            @click="refresh()"
           >
-            Crawl
+            Refresh
           </button>
         </div>
       </div>
       <ProductList
+        v-if="products?.length"
         :key="`view-${isRowView}`"
         :products="products"
         :is-row-view="isRowView"
       />
+
+      <NuxtLink
+        v-else
+        to="/add-product"
+        class="text-2xl flex items-center gap-2"
+      >
+        <span>Add product </span> <Icon name="line-md:plus" size="32"
+      /></NuxtLink>
     </main>
   </div>
 </template>

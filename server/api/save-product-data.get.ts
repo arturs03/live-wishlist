@@ -1,61 +1,56 @@
 import Crawler from 'crawler'
 import type { ICrawledData } from '@@/shared/types'
-import { removeNonNumericCharacters } from '@@/shared/utils'
-import { saveFile } from '../utils/file'
-import { extractValues } from '../utils/domJquery'
+// import { saveFile } from '../utils/file'
+import { universalParser } from '../utils/parsers'
+import { DATA_SOURCES } from '../utils/constants'
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery<{ url: string }>(event)
+  const query = getQuery<{ item: string }>(event)
+
+  if (!query.item) {
+    throw createError('No item provided')
+  }
 
   const crawler = new Crawler({
     rateLimit: 50,
-    callback: (error, res) => {
+    callback: (error) => {
       if (error) {
         console.log(error)
       }
     },
   })
 
-  const response: ICrawledData[] = await crawler.send({
-    url: query.url,
-    callback: (error, response) => {
-      if (!response && response.statusCode) {
-        console.log('Failed to receive body')
-      }
+  const response: ICrawledData[] = []
 
-      const $ = response.$
+  for (let index = 0; index < DATA_SOURCES.length; index++) {
+    const source = DATA_SOURCES[index]
 
-      const title = extractValues($, '.msg2')
-      const prices = extractValues($, '.msga2-o.pp6')
-      const links = extractValues($, '.msga2 a', 'href')
-      const images = extractValues($, '.msga2 img', 'src')
+    const crawledData = await crawler
+      .send({
+        url: `${source.url}${encodeURIComponent(query.item)}`,
+        callback: (error, response) => {
+          const $ = response?.$
+          if (!response || !$) {
+            console.log('Failed to receive body')
 
-      return title.map((val: string, i: number) => {
-        const item = {
-          title: val,
-          link: links[i] ?? '',
-          price: prices[i] ?? '',
-          img: images[i] ?? '',
-          crawlDate: new Date().toISOString(),
-        }
+            return
+          }
 
-        return {
-          ...item,
-          price: removeNonNumericCharacters(item.price),
-          history: [
-            {
-              crawlDate: item.crawlDate,
-              price: removeNonNumericCharacters(item.price),
-            },
-          ],
-        }
+          return universalParser($, source.selectors)
+        },
       })
-    },
-  })
+      .catch((e) => {
+        console.log('Failed to fetch:', e)
+      })
 
-  if (!response.length) {
+    if (crawledData?.length) {
+      response.push(crawledData)
+    }
+  }
+
+  if (!response?.length) {
     return
   }
 
-  saveFile('./data/ss.json', response)
+  // saveFile('./data/prices.json', response)
 })

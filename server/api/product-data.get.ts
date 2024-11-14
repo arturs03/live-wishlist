@@ -1,14 +1,17 @@
-import { readFileSync } from 'fs'
-import { ICrawledData } from '@@/shared/types'
+import { readFileSync, existsSync } from 'fs'
+import type { ICrawledData } from '@@/shared/types'
 
-export default defineEventHandler((event) => {
-  const data: ICrawledData[] = JSON.parse(
-    readFileSync('./data/ss.json', 'utf-8')
-  )
+export default defineEventHandler(() => {
+  const path = './data/prices.json'
+  const fileData = existsSync(path) && readFileSync(path, 'utf-8')
 
-  if (!data?.length) {
+  if (!fileData) {
     return []
   }
+
+  console.log(fileData)
+
+  const data: ICrawledData[] = JSON.parse(fileData) ?? []
 
   return data
 })
